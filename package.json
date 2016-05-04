@@ -1,0 +1,16 @@
+{
+  "name": "auca-judge-front",
+  "description": "A front end for the auca-judge system",
+  "author": "Dmitrii Toksaitov <dmitrii@toksaitov.com>",
+  "version": "1.0.0",
+  "dependencies": {
+    "express": "^4.13.4",
+    "http-proxy-middleware": "^0.14.0",
+    "redis": "^2.6.0-2",
+    "winston": "^2.2.0"
+  },
+  "scripts": {
+    "start": "node auca-judge-front.js"
+  },
+  "private": true
+}
