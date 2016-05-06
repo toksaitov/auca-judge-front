@@ -22,14 +22,27 @@ For `/` *auca-judge-front* returns a page with a sample problem.
 
 **POST** */submit*
 
-The `/submit` path is passed from *auca-judge-front* to the *auca-judge-back* to
-make a new submission. Refer to [documentation](https://github.com/toksaitov/auca-judge-back)
-of the *auca-judge-back* service for more information.
+The `/submit` path can be passed from *auca-judge-front* to the
+*auca-judge-back* to make a new submission. Refer to
+[documentation](https://github.com/toksaitov/auca-judge-back) of the
+*auca-judge-back* service for more information.
+
+Alternatively, developers can enable an option inside sources to use a task
+queue service of the *auca-judge* system. In this case *auca-judge-front* will
+create a new task in a task database and add its ID to a task queue database.
+Instances of the *auca-judge-queue* service will be notified and one unoccupied
+worker will start processing the task as soon as possible.
 
 **GET** */submission/<submission ID>*
 
-The `/submission/<submission ID>` path returns information from the status
-database about a submission under the specified ID.
+The `/submission/<submission ID>` path can be passed from *auca-judge-front* to
+the *auca-judge-back* to fetch information about the specified submission. Refer
+to [documentation](https://github.com/toksaitov/auca-judge-back) of the
+*auca-judge-back* service for more information.
+
+Alternatively, developers can enable an option inside sources to query
+information from the status database about a submission under the specified ID
+locally.
 
 ```json
 {
@@ -39,7 +52,7 @@ database about a submission under the specified ID.
 }
 ```
 
-## Usage 
+## Usage
 
 * `npm install`: to install dependencies
 

@@ -195,22 +195,21 @@
         return;
       }
 
+      hideErrorMessage();
+      clearTestStatusTable();
+
       var tests =
         JSON.parse(responseText);
 
-      if (!tests) {
-        return;
-      }
+      if (tests) {
+        buildTestStatusTable(tests["results"]);
 
-      hideErrorMessage();
-      clearTestStatusTable();
-      buildTestStatusTable(tests["results"]);
+        var status =
+          tests["status"];
 
-      var status =
-        tests["status"];
-
-      if (!status || status === "finished" || status === "failed") {
-        return;
+        if (!status || status === "finished" || status === "failed") {
+            return;
+        }
       }
 
       var timer =
