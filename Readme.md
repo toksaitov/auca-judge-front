@@ -1,6 +1,8 @@
 auca-judge-front
 ================
 
+![sample](http://i.imgur.com/9CdyTGM.png)
+
 *auca-judge-front* is a web front end for the *auca-judge* system.
 
 Currently *auca-judge-front* just sends a sample page  with scripts to make
