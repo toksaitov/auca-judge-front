@@ -17,22 +17,33 @@ const winston =
 const Server =
   express();
 const ServerPort =
-  8888;
+  8080;
 const BackServerURL =
-  "http://0.0.0.0:7070"
+  "http://auca-judge-back:7070"
 
 const UseTaskQueue =
   true;
 const QuerySubmissionStateLocally =
   true;
 
-const StateDatabaseConnectionOptions =
-  null;
+const StateDatabaseConnectionOptions = {
+  "host": "auca-judge-state-db",
+  "port": 6379
+};
 const StateDatabase =
   redis.createClient(
     StateDatabaseConnectionOptions
   );
 
+StateDatabase.on("ready", () => {
+  Logger.info("Connected to the state database");
+});
+StateDatabase.on("reconnecting", () => {
+  Logger.info("Reconnected to the state database");
+});
+StateDatabase.on("end", () => {
+  Logger.info("Disconnected from the state database");
+});
 StateDatabase.on("error", error => {
   Logger.error("The state database client has encountered an error");
   Logger.error(error);
@@ -64,13 +75,24 @@ if (PathsToProxify.length > 0) {
 }
 
 if (UseTaskQueue) {
-  const QueueDatabaseConnectionOptions =
-    null;
+  const QueueDatabaseConnectionOptions = {
+    "host": "auca-judge-queue-db",
+    "port": 6379
+  };
   const QueueDatabase =
     redis.createClient(
       QueueDatabaseConnectionOptions
     );
 
+  QueueDatabase.on("ready", () => {
+    Logger.info("Connected to the queue database");
+  });
+  QueueDatabase.on("reconnecting", () => {
+    Logger.info("Reconnected to the queue database");
+  });
+  QueueDatabase.on("end", () => {
+    Logger.info("Disconnected from the queue database");
+  });
   QueueDatabase.on("error", error => {
     Logger.error("The queue database client has encountered an error");
     Logger.error(error);
@@ -83,15 +105,24 @@ if (UseTaskQueue) {
   );
 
   const TaskDatabaseConnectionOptions = {
-    "url": "mongodb://0.0.0.0:27017/auca_judge",
-    "options": null
+    "url": "mongodb://auca-judge-task-db:27017/auca_judge",
+    "options": { }
   };
   const TaskDatabase =
     mongoose.createConnection(
-      TaskDatabaseConnectionOptions.url,
-      TaskDatabaseConnectionOptions.options
+      TaskDatabaseConnectionOptions["url"],
+      TaskDatabaseConnectionOptions["options"]
     );
 
+  TaskDatabase.on("open", () => {
+    Logger.info("Connected to the task database");
+  });
+  TaskDatabase.on("reconnected", () => {
+    Logger.info("Reconnected to the task database");
+  });
+  TaskDatabase.on("close", () => {
+    Logger.warn("Disconnected from the task database");
+  });
   TaskDatabase.on("error", error => {
     Logger.error("The task database client has encountered an error");
     Logger.error(error);
@@ -109,7 +140,7 @@ if (UseTaskQueue) {
 
     task.save((error, task) => {
       if (error) {
-        onResultCallback(error, null);
+        onResultCallback(error);
       } else {
         onResultCallback(error, task.id);
       }
@@ -132,7 +163,10 @@ if (UseTaskQueue) {
       "status": "in progress"
     };
 
-    StateDatabase.hmset(`submission:${submissionID}`, submission, (error, reply) => {
+    let key =
+      `submission:${submissionID}`;
+
+    StateDatabase.hmset(key, submission, (error, reply) => {
       if (error) {
         Logger.error(
           "Failed to update submission information " +
@@ -237,7 +271,10 @@ if (UseTaskQueue) {
 
 if (QuerySubmissionStateLocally) {
   function getSubmissionInformation(submissionID, onResultCallback) {
-    StateDatabase.hgetall(`submission:${submissionID}`, (error, submission) => {
+    let key =
+      `submission:${submissionID}`;
+
+    StateDatabase.hgetall(key, (error, submission) => {
       if (!error) {
         if (submission) {
           let results =
