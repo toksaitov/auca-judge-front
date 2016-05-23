@@ -1,0 +1,7 @@
+version: "2"
+
+services:
+  auca-judge-front:
+    volumes:
+      - ".:/auca-judge-front"
+
